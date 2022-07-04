@@ -421,10 +421,12 @@ void roaring_bitmap_add(roaring_bitmap_t *r, uint32_t val) {
                                       newtypecode);
         }
     } else {
-        array_container_t *newac = array_container_create();
+        bitset_container_t *newac = bitset_container_create();
         void *container = container_add(newac, val & 0xFFFF,
-                                        ARRAY_CONTAINER_TYPE_CODE, &typecode);
+                                        BITSET_CONTAINER_TYPE_CODE, &typecode);
         // we could just assume that it stays an array container
+
+        // TODO(weixiang): may be this will be changed for bitset container
         ra_insert_new_key_value_at(&r->high_low_container, -i - 1, hb,
                                    container, typecode);
     }
@@ -807,6 +809,17 @@ void roaring_bitmap_or_inplace(roaring_bitmap_t *x1,
                                                  &container_type_1);
             if (!container_is_full(c1, container_type_1)) {
                 c1 = get_writable_copy_if_shared(c1, &container_type_1);
+
+                if (container_type_1 != BITSET_CONTAINER_TYPE_CODE) {
+                    if (!(container_type_1 == RUN_CONTAINER_TYPE_CODE && run_container_is_full((const run_container_t *)c1))) {
+                        // first convert one container c1 to bitset container
+                        void *old_c1 = c1;
+                        uint8_t old_type1 = container_type_1;
+                        c1 = container_to_bitset(c1, container_type_1);
+                        container_type_1 = BITSET_CONTAINER_TYPE_CODE;
+                        container_free(old_c1, old_type1);
+                    }
+                }
 
                 void *c2 = ra_get_container_at_index(&x2->high_low_container,
                                                      pos2, &container_type_2);
