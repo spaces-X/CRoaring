@@ -437,10 +437,12 @@ void roaring_bitmap_add(roaring_bitmap_t *r, uint32_t val) {
                                       newtypecode);
         }
     } else {
-        array_container_t *newac = array_container_create();
+        bitset_container_t *newac = bitset_container_create();
         container_t *container = container_add(newac, val & 0xFFFF,
-                                        ARRAY_CONTAINER_TYPE, &typecode);
+                                        BITSET_CONTAINER_TYPE, &typecode);
         // we could just assume that it stays an array container
+
+        // TODO(weixiang): may be this will be changed for bitset container
         ra_insert_new_key_value_at(&r->high_low_container, -i - 1, hb,
                                    container, typecode);
     }
@@ -824,9 +826,22 @@ void roaring_bitmap_or_inplace(roaring_bitmap_t *x1,
         if (s1 == s2) {
             container_t *c1 = ra_get_container_at_index(
                                     &x1->high_low_container, pos1, &type1);
+            c1 = container_mutable_unwrap_shared(c1, &type1);
             if (!container_is_full(c1, type1)) {
                 container_t *c2 = ra_get_container_at_index(
                                         &x2->high_low_container, pos2, &type2);
+                c2 = container_mutable_unwrap_shared(c2, &type2);
+                if (type1 != BITSET_CONTAINER_TYPE) {
+                    if (!(type1 == RUN_CONTAINER_TYPE && run_container_is_full(const_CAST_run(c1)))) {
+                        // first convert one container c1 to bitset container
+                        container_t *old_c1 = c1;
+                        uint8_t old_type1 = type1;
+                        c1 = container_to_bitset(c1, type1);
+                        type1 = BITSET_CONTAINER_TYPE;
+                        container_free(old_c1, old_type1);
+                    }
+                }
+                
                 container_t *c =
                     (type1 == SHARED_CONTAINER_TYPE)
                         ? container_or(c1, type1, c2, type2, &result_type)
