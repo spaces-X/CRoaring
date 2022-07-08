@@ -187,22 +187,22 @@ bool array_array_container_inplace_union(array_container_t *src_1,
                                  const array_container_t *src_2, void **dst) {
     int totalCardinality = src_1->cardinality + src_2->cardinality;
     *dst = NULL;
-    if (totalCardinality <= DEFAULT_MAX_SIZE) {
-        if(src_1->capacity < totalCardinality) {
-          *dst = array_container_create_given_capacity(2  * totalCardinality); // be purposefully generous
-          if (*dst != NULL) {
-              array_container_union(src_1, src_2, (array_container_t *)*dst);
-          } else {
-              return true; // otherwise failure won't be caught
-          }
-          return false;  // not a bitset
-        } else {
-          memmove(src_1->array + src_2->cardinality, src_1->array, src_1->cardinality * sizeof(uint16_t));
-          src_1->cardinality = (int32_t)fast_union_uint16(src_1->array + src_2->cardinality, src_1->cardinality,
-                                  src_2->array, src_2->cardinality, src_1->array);
-          return false; // not a bitset
-        }
-    }
+    // if (totalCardinality <= DEFAULT_MAX_SIZE) {
+    //     if(src_1->capacity < totalCardinality) {
+    //       *dst = array_container_create_given_capacity(2  * totalCardinality); // be purposefully generous
+    //       if (*dst != NULL) {
+    //           array_container_union(src_1, src_2, (array_container_t *)*dst);
+    //       } else {
+    //           return true; // otherwise failure won't be caught
+    //       }
+    //       return false;  // not a bitset
+    //     } else {
+    //       memmove(src_1->array + src_2->cardinality, src_1->array, src_1->cardinality * sizeof(uint16_t));
+    //       src_1->cardinality = (int32_t)fast_union_uint16(src_1->array + src_2->cardinality, src_1->cardinality,
+    //                               src_2->array, src_2->cardinality, src_1->array);
+    //       return false; // not a bitset
+    //     }
+    // }
     *dst = bitset_container_create();
     bool returnval = true;  // expect a bitset
     if (*dst != NULL) {
@@ -211,19 +211,19 @@ bool array_array_container_inplace_union(array_container_t *src_1,
         ourbitset->cardinality = (int32_t)bitset_set_list_withcard(
             ourbitset->array, src_1->cardinality, src_2->array,
             src_2->cardinality);
-        if (ourbitset->cardinality <= DEFAULT_MAX_SIZE) {
-            // need to convert!
-            if(src_1->capacity < ourbitset->cardinality) {
-              array_container_grow(src_1, ourbitset->cardinality, false);
-            }
+        // if (ourbitset->cardinality <= DEFAULT_MAX_SIZE) {
+        //     // need to convert!
+        //     if(src_1->capacity < ourbitset->cardinality) {
+        //       array_container_grow(src_1, ourbitset->cardinality, false);
+        //     }
 
-            bitset_extract_setbits_uint16(ourbitset->array, BITSET_CONTAINER_SIZE_IN_WORDS,
-                                  src_1->array, 0);
-            src_1->cardinality =  ourbitset->cardinality;
-            *dst = src_1;
-            bitset_container_free(ourbitset);
-            returnval = false;  // not going to be a bitset
-        }
+        //     bitset_extract_setbits_uint16(ourbitset->array, BITSET_CONTAINER_SIZE_IN_WORDS,
+        //                           src_1->array, 0);
+        //     src_1->cardinality =  ourbitset->cardinality;
+        //     *dst = src_1;
+        //     bitset_container_free(ourbitset);
+        //     returnval = false;  // not going to be a bitset
+        // }
     }
     return returnval;
 }
