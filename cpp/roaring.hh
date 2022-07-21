@@ -495,6 +495,17 @@ class Roaring {
     }
 
     /**
+     * @brief write roarings for shuffle
+     * 
+     * @param buf 
+     * @param portable 
+     * @return size_t 
+     */
+    size_t write_for_shuffle(char *buf, bool portable = true) const {
+        return write(buf, portable);
+    }
+
+    /**
      * read a bitmap from a serialized version. This is meant to be compatible
      * with the Java and Go versions.
      *
@@ -514,6 +525,24 @@ class Roaring {
         }
         return Roaring(r);
     }
+
+    /**
+     * @brief read roaring when shuffle.
+     * 
+     * @param buf 
+     * @param portable 
+     * @return Roaring 
+     */
+    static Roaring read_for_shuffle(const char *buf, bool portable = true) {
+        roaring_bitmap_t * r = portable
+            ? api::roaring_bitmap_portable_deserialize(buf)
+            : api::roaring_bitmap_deserialize(buf);
+        if (r == NULL) {
+            ROARING_TERMINATE("failed alloc while reading");
+        }
+        return Roaring(r);
+    }
+
     /**
      * read a bitmap from a serialized version, reading no more than maxbytes bytes.
      * This is meant to be compatible with the Java and Go versions.
@@ -541,6 +570,11 @@ class Roaring {
             return api::roaring_bitmap_portable_size_in_bytes(&roaring);
         else
             return api::roaring_bitmap_size_in_bytes(&roaring);
+    }
+
+
+    size_t getShuffleSizeInBytes(bool portable = true) const {
+        return getSizeInBytes(portable);
     }
 
     static const Roaring frozenView(const char *buf, size_t length) {
