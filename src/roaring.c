@@ -1288,6 +1288,7 @@ bool roaring_bitmap_range_uint32_array(const roaring_bitmap_t *r,
  * true if the result has at least one run container.
 */
 bool roaring_bitmap_run_optimize(roaring_bitmap_t *r) {
+    roaring_bitmap_repair_after_lazy(r);
     bool answer = false;
     for (int i = 0; i < r->high_low_container.size; i++) {
         uint8_t type_original, type_after;
