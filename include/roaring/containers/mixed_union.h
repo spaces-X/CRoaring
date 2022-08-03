@@ -40,7 +40,7 @@ void array_bitset_container_lazy_union(const array_container_t *src_1,
  */
 bool array_array_container_union(
         const array_container_t *src_1, const array_container_t *src_2,
-        container_t **dst);
+        container_t **dst, bool skip_array);
 
 /*
  * Compute the union between src_1 and src_2 and write the result
@@ -52,7 +52,7 @@ bool array_array_container_union(
  */
 bool array_array_container_inplace_union(
         array_container_t *src_1, const array_container_t *src_2,
-        container_t **dst);
+        container_t **dst, bool skip_array);
 
 /*
  * Same as array_array_container_union except that it will more eagerly produce

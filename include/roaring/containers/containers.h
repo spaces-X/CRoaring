@@ -1035,7 +1035,7 @@ static inline container_t *container_iand(
 static inline container_t *container_or(
     const container_t *c1, uint8_t type1,
     const container_t *c2, uint8_t type2,
-    uint8_t *result_type
+    uint8_t *result_type, bool skip_array
 ){
     c1 = container_unwrap_shared(c1, &type1);
     c2 = container_unwrap_shared(c2, &type2);
@@ -1052,7 +1052,7 @@ static inline container_t *container_or(
         case CONTAINER_PAIR(ARRAY,ARRAY):
             *result_type = array_array_container_union(
                                 const_CAST_array(c1),
-                                const_CAST_array(c2), &result)
+                                const_CAST_array(c2), &result, skip_array)
                                     ? BITSET_CONTAINER_TYPE
                                     : ARRAY_CONTAINER_TYPE;
             return result;
@@ -1266,7 +1266,7 @@ static inline container_t *container_lazy_or(
 static inline container_t *container_ior(
     container_t *c1, uint8_t type1,
     const container_t *c2, uint8_t type2,
-    uint8_t *result_type
+    uint8_t *result_type, bool skip_array
 ){
     c1 = get_writable_copy_if_shared(c1, &type1);
     c2 = container_unwrap_shared(c2, &type2);
@@ -1288,7 +1288,7 @@ static inline container_t *container_ior(
 
         case CONTAINER_PAIR(ARRAY,ARRAY):
             *result_type = array_array_container_inplace_union(
-                                CAST_array(c1), const_CAST_array(c2), &result)
+                                CAST_array(c1), const_CAST_array(c2), &result, skip_array)
                                     ? BITSET_CONTAINER_TYPE
                                     : ARRAY_CONTAINER_TYPE;
             if((result == NULL)

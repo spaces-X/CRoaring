@@ -22,7 +22,7 @@ extern inline container_t *container_iand(
 extern inline container_t *container_ior(
         container_t *c1, uint8_t type1,
         const container_t *c2, uint8_t type2,
-        uint8_t *result_type);
+        uint8_t *result_type, bool skip_array);
 
 extern inline container_t *container_ixor(
         container_t *c1, uint8_t type1,

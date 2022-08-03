@@ -259,7 +259,12 @@ class Roaring {
      * See also the fastunion function to aggregate many bitmaps more quickly.
      */
     Roaring &operator|=(const Roaring &r) {
-        api::roaring_bitmap_or_inplace(&roaring, &r.roaring);
+        api::roaring_bitmap_or_inplace(&roaring, &r.roaring, false);
+        return *this;
+    }
+
+    Roaring &union_skip_array(const Roaring &r) {
+        api::roaring_bitmap_or_inplace(&roaring, &r.roaring, true);
         return *this;
     }
 

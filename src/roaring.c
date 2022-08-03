@@ -804,7 +804,7 @@ roaring_bitmap_t *roaring_bitmap_or(const roaring_bitmap_t *x1,
 
 // inplace or (modifies its first argument).
 void roaring_bitmap_or_inplace(roaring_bitmap_t *x1,
-                               const roaring_bitmap_t *x2) {
+                               const roaring_bitmap_t *x2, bool skip_array) {
     uint8_t result_type = 0;
     int length1 = x1->high_low_container.size;
     const int length2 = x2->high_low_container.size;
@@ -828,8 +828,8 @@ void roaring_bitmap_or_inplace(roaring_bitmap_t *x1,
                                         &x2->high_low_container, pos2, &type2);
                 container_t *c =
                     (type1 == SHARED_CONTAINER_TYPE)
-                        ? container_or(c1, type1, c2, type2, &result_type)
-                        : container_ior(c1, type1, c2, type2, &result_type);
+                        ? container_or(c1, type1, c2, type2, &result_type, skip_array)
+                        : container_ior(c1, type1, c2, type2, &result_type, skip_array);
 
                 if (c != c1) {  // in this instance a new container was created,
                                 // and we need to free the old one

@@ -187,7 +187,7 @@ roaring_bitmap_t *roaring_bitmap_or(const roaring_bitmap_t *r1,
  * TODO: decide whether r1 == r2 ok
  */
 void roaring_bitmap_or_inplace(roaring_bitmap_t *r1,
-                               const roaring_bitmap_t *r2);
+                               const roaring_bitmap_t *r2, bool skip_array);
 
 /**
  * Compute the union of 'number' bitmaps.
